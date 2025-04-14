@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-
 COMM_MAKE = 1
 COMM_ECHO = 1
 version=0.5
@@ -25,7 +24,7 @@ include co.mk
 
 ########## options ##########
 CFLAGS += -g -fno-strict-aliasing -O2 -Wall -export-dynamic \
-	-Wall -pipe  -D_GNU_SOURCE -D_REENTRANT -fPIC -Wno-deprecated -m64
+	-Wall -pipe  -D_GNU_SOURCE -D_REENTRANT -fPIC -Wno-deprecated -m64 -MMD
 
 UNAME := $(shell uname -s)
 
@@ -49,30 +48,30 @@ libcolib.a: $(COLIB_OBJS)
 libcolib.so: $(COLIB_OBJS)
 	$(BUILDSHARELIB) 
 
-example_echosvr: example_echosvr.o lib/libcolib.a
+example_echosvr: example_echosvr.o  libco/lib/libcolib.a
 	$(BUILDEXE) 
-example_echocli: example_echocli.o lib/libcolib.a
+example_echocli: example_echocli.o  libco/lib/libcolib.a
 	$(BUILDEXE) 
-example_thread: example_thread.o lib/libcolib.a
+example_thread: example_thread.o  libco/lib/libcolib.a
 	$(BUILDEXE) 
-example_poll: example_poll.o lib/libcolib.a
+example_poll: example_poll.o  libco/lib/libcolib.a
 	$(BUILDEXE) 
 example_exit: example_exit.o
 	$(BUILDEXE) 
-example_cond: example_cond.o lib/libcolib.a
+example_cond: example_cond.o  libco/lib/libcolib.a
 	$(BUILDEXE)
-example_specific: example_specific.o lib/libcolib.a
+example_specific: example_specific.o  libco/lib/libcolib.a
 	$(BUILDEXE)
-example_copystack: example_copystack.o lib/libcolib.a
+example_copystack: example_copystack.o  libco/lib/libcolib.a
 	$(BUILDEXE)
-example_setenv: example_setenv.o lib/libcolib.a
+example_setenv: example_setenv.o  libco/lib/libcolib.a
 	$(BUILDEXE)
-example_closure: example_closure.o lib/libcolib.a
+example_closure: example_closure.o  libco/lib/libcolib.a
 	$(BUILDEXE)
 
 dist: clean libco-$(version).src.tar.gz
 
-libco-$(version).src.tar.gz:
+libco-$(version).src.tar.gz: 
 	@find . -type f | grep -v CVS | grep -v .svn | sed s:^./:libco-$(version)/: > MANIFEST
 	@(cd ..; ln -s libco_pub libco-$(version))
 	(cd ..; tar cvf - `cat libco_pub/MANIFEST` | gzip > libco_pub/libco-$(version).src.tar.gz)
@@ -82,3 +81,4 @@ clean:
 	$(CLEAN) *.o $(PROGS)
 	rm -fr MANIFEST lib solib libco-$(version).src.tar.gz libco-$(version)
 
+-include $(wildcard *.d)
